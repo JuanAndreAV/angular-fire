@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { provideAuth, getAuth, connectAuthEmulator } from '@angular/fire/auth';
@@ -11,14 +11,20 @@ import { provideRouter } from '@angular/router';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    importProvidersFrom(
-      provideFirebaseApp(() => initializeApp(environment.firebase)),
-      provideFirestore(() => getFirestore()),
-      provideAuth(() => getAuth()),
-      provideFunctions(() => getFunctions()),
-      provideStorage(() => getStorage()),
-      provideMessaging(() => getMessaging())
-    ),
-    provideRouter(routes), provideFirebaseApp(() => initializeApp({"projectId":"friendlychat-3068f","appId":"1:306426046174:web:3c826aa235dcef4ebf044f","storageBucket":"friendlychat-3068f.firebasestorage.app","apiKey":"AIzaSyAKzUUNIUpWCfsRxthg8QLW3OtlkdutTvY","authDomain":"friendlychat-3068f.firebaseapp.com","messagingSenderId":"306426046174"})), provideAuth(() => getAuth()), provideFirestore(() => getFirestore()), provideMessaging(() => getMessaging()), provideStorage(() => getStorage())
+    provideRouter(routes),
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideAuth(() => getAuth()),
+    provideFirestore(() => getFirestore()),
+    provideFunctions(() => getFunctions()),
+    provideStorage(() => getStorage()),
+    provideMessaging(() => getMessaging()),
+    // Si estás usando emuladores en desarrollo:
+    ...(environment.useEmulators ? [
+      // No es necesario envolver en provide(), ya que connect*Emulator no devuelve un provider
+      { provide: 'connectAuthEmulator', useValue: connectAuthEmulator },
+      { provide: 'connectFirestoreEmulator', useValue: connectFirestoreEmulator },
+      { provide: 'connectFunctionsEmulator', useValue: connectFunctionsEmulator },
+      { provide: 'connectStorageEmulator', useValue: connectStorageEmulator },
+    ] : []),
   ],
 };
